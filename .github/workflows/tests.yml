@@ -20,7 +20,7 @@ jobs:
           allow: pypi.org, files.pythonhosted.org
           artifacts: report.xml
           timeout: "600"
-          max-cost: "0.20"   # in your billing currency – for CZK use "1.50"
+          max-cost: "1.50"   # in your billing currency (CZK here) – for EUR or USD use "0.20"
 
       - name: Show the result
         if: always()
