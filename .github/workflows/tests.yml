@@ -1,0 +1,37 @@
+name: tests in WBX Sandbox
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: WBX-Sandbox/run@v1
+        id: wbx
+        with:
+          api-key: ${{ secrets.WBXSANDBOX_API_KEY }}
+          template: base
+          command: |
+            pip install -q -r requirements.txt
+            python -m pytest -v --junitxml=report.xml
+          network: allowlist
+          allow: pypi.org, files.pythonhosted.org
+          artifacts: report.xml
+          timeout: "600"
+          max-cost: "0.20"   # in your billing currency – for CZK use "1.50"
+
+      - name: Show the result
+        if: always()
+        run: |
+          echo "job:    ${{ steps.wbx.outputs.job-id }}"
+          echo "status: ${{ steps.wbx.outputs.status }} (exit ${{ steps.wbx.outputs.exit-code }})"
+          echo "cost:   ${{ steps.wbx.outputs.cost }} ${{ steps.wbx.outputs.currency }}"
+          ls -la "${{ steps.wbx.outputs.artifacts-path }}"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wbx-results
+          path: ${{ steps.wbx.outputs.artifacts-path }}
